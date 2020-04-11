@@ -40,7 +40,7 @@ private:
     void blackTurn();
     vector<Move> moves;
     void writeMoves();
-    bool whiteTurnEnd, whiteTurnEndP;
+    bool whiteTurnEnd = false, whiteTurnEndP = false;
     QTimer *timer;
 private slots:
     void slotFromPoint();

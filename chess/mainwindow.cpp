@@ -97,6 +97,11 @@ void MainWindow::timerOut(){
     else if (whiteTurnEnd) {
         whiteTurnEnd = false;
         delete timer;
+        for (int i = 0; i < 8; i++){
+            for (int j = 0; j < 8; j++){
+                delete figures[i][j];
+            }
+        }
         blackTurn();
     }
 }
