@@ -7,8 +7,6 @@
 #include <QTimer>
 #include "situation.h"
 
-
-
 class Figure : public QObject, public QGraphicsItem
 {
     Q_OBJECT

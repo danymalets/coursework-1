@@ -110,7 +110,8 @@ public:
 
     Situation();
 
-    bool isKingMove1, isKingMove2, isRookMove1, isRookMove2, isRookMove3, isRookMove4;
+    bool isKingMove1 = false, isKingMove2 = false, isRookMove1 = false,
+    isRookMove2= false, isRookMove3 = false, isRookMove4 = false;
 
     int movePawn = -1;
 
@@ -131,11 +132,8 @@ public:
     bool isBlock(Colors color);
     void copy(Situation *a);
 private:
-
     bool isBarrier(int x, int y, int nx, int ny);
-
     double getValue();
-
 };
 
 

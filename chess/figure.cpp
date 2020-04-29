@@ -11,10 +11,6 @@ Figure::Figure(QGraphicsScene *scene, Situation *situation, vector<Move> *moves,
 
     if (s && situation->boardColors[x][y] == white)
         setFlag(ItemIsMovable);
-
-    //QTimer* timer = new QTimer(this);
-    //connect(timer, SIGNAL(timeout()), this, SLOT(sl()));
-    //timer->start(100);
 }
 
 Figure::~Figure()
@@ -94,11 +90,6 @@ void Figure::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
     Q_UNUSED(widget);
 }
 
-//void Figure::sl()
-//{
-//   if (IsMove == false) setPos(0,0);
-//}
-
 void Figure::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsItem::mouseReleaseEvent(event);
@@ -113,27 +104,5 @@ void Figure::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
     else{
         setPos(-350 + x * 100, -350 + y * 100);
-
-    }
-}
-
-void Figure::showMove(int nx, int ny)
-{
-    this->x = nx;
-    this->y = ny;
-    qreal x1, y1, x2, y2, dx, dy;
-
-    x1 = -350 + x * 100;
-    y1 = -350 + y * 100;
-    x2 = -350 + nx * 100;
-    y2 = -350 + ny * 100;
-
-    dx = (x2 - x1) / 10;
-    dy = (y2 - y1) / 10;
-
-    for (int i = 0; i < 10; i++){
-        x1 += dx;
-        y1 += dy;
-        setPos(mapFromParent(0, -10));
     }
 }

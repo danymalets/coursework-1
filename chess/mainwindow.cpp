@@ -1,16 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     scene = new QGraphicsScene();
     scene->setSceneRect(0,0,1,1);
     ui->graphicsView->setScene(scene);
-    level = 6;
+    level = 4;
     start();
 }
 
@@ -99,6 +96,7 @@ void MainWindow::timerOut(){
         delete timer;
         for (int i = 0; i < 8; i++){
             for (int j = 0; j < 8; j++){
+                scene->removeItem(figures[i][j]);
                 delete figures[i][j];
             }
         }
@@ -109,7 +107,6 @@ void MainWindow::timerOut(){
 
 void MainWindow::blackTurn()
 {
-
     if (situation->isMate(black)){
         QMessageBox::information(this,"","Вы победили!\nШах и мат");
         showBoard(0);

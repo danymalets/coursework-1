@@ -18,7 +18,6 @@ Situation::Situation()
 
         for (int j = 4; j < 8; j++)
             if (boardFigures[i][j] == noFigure) boardColors[i][j] = noColor; else boardColors[i][j] = white;
-
     }
 }
 
@@ -152,9 +151,6 @@ void Situation::copy(Situation *a)
     movePawn = a->movePawn;
 }
 
-
-
-
 bool Situation::isMate(Colors color)
 {
     return isCheck(color) && isBlock(color);
@@ -176,7 +172,8 @@ void Situation::move(Move m)
     else if ((m.x1 == 7 && m.y1 == 7) || (m.x2 == 7 && m.y2 == 7)) isRookMove4 = true;
 
     movePawn = -1;
-    if (boardFigures[m.x1][m.y1] == pawn && boardFigures[m.x2][m.y2] == noFigure && abs(m.y1 - m.y2) == 2) movePawn = m.x1;
+    if (boardFigures[m.x1][m.y1] == pawn && boardFigures[m.x2][m.y2] == noFigure &&
+            abs(m.y1 - m.y2) == 2) movePawn = m.x1;
 
     if (m.x1 == 4 && m.y1 == 0 && m.x2 ==2 && m.y2 == 0) move({0,0,3,0});
     else if (m.x1 == 4 && m.y1 == 0 && m.x2 == 6 && m.y2 == 0) move({7,0,5,0});
@@ -184,7 +181,8 @@ void Situation::move(Move m)
     else if (m.x1 == 4 && m.y1 == 7 && m.x2 == 6 && m.y2 == 7) move({7,7,5,7});
 
 
-    if (boardFigures[m.x1][m.y1] == pawn && abs(m.x1 - m.x2) == 1 && boardFigures[m.x2][m.y2] == noFigure) boardFigures[m.x2][m.y1] = noFigure;
+    if (boardFigures[m.x1][m.y1] == pawn && abs(m.x1 - m.x2) == 1 &&
+            boardFigures[m.x2][m.y2] == noFigure) boardFigures[m.x2][m.y1] = noFigure;
     boardFigures[m.x2][m.y2] = boardFigures[m.x1][m.y1];
     boardFigures[m.x1][m.y1] = noFigure;
     boardColors[m.x2][m.y2] = boardColors[m.x1][m.y1];

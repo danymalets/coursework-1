@@ -13,11 +13,8 @@
 using namespace std;
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
-
-//bool MoveBot;
-//Move move;
 
 class MainWindow : public QMainWindow
 {
