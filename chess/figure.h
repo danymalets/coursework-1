@@ -31,6 +31,7 @@ private:
     Situation *situation;
     Figures *figures;
     int x, y;
+    bool wasMove = false;
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 private slots:

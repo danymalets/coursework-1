@@ -59,10 +59,7 @@ void MainWindow::showBoard(bool s, Move m)
             figures[i][j] = new Figure(scene, situation, &moves, i, j, s);
             scene->addItem(figures[i][j]);
             connect(figures[i][j], SIGNAL(sl()), this, SLOT(slotFromPoint()));
-            timer = new QTimer();
-            timer->setInterval(100);
-            connect(timer, SIGNAL(timeout()), this, SLOT(timerOut()));
-            timer->start();
+
         }
     }
 }
@@ -81,27 +78,23 @@ void MainWindow::start()
 }
 
 void MainWindow::slotFromPoint(){
-    whiteTurnEndP = true;
     showBoard(0);
     writeMoves();
+    timer = new QTimer();
+    timer->setInterval(100);
+    connect(timer, SIGNAL(timeout()), this, SLOT(timerOut()));
+    timer->start();
 }
 
 void MainWindow::timerOut(){
-    if (whiteTurnEndP){
-        whiteTurnEndP = false;
-        whiteTurnEnd = true;
-    }
-    else if (whiteTurnEnd) {
-        whiteTurnEnd = false;
-        delete timer;
-        for (int i = 0; i < 8; i++){
-            for (int j = 0; j < 8; j++){
-                scene->removeItem(figures[i][j]);
-                delete figures[i][j];
-            }
+    delete timer;
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+            scene->removeItem(figures[i][j]);
+            delete figures[i][j];
         }
-        blackTurn();
     }
+    blackTurn();
 }
 
 

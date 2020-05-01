@@ -1,6 +1,7 @@
 #include "figure.h"
 
-Figure::Figure(QGraphicsScene *scene, Situation *situation, vector<Move> *moves, int x, int y, bool s,QObject *parent): QObject(parent), QGraphicsItem()
+Figure::Figure(QGraphicsScene *scene, Situation *situation, vector<Move> *moves,
+               int x, int y, bool s, QObject *parent): QObject(parent), QGraphicsItem()
 {
     this->scene = scene;
     this->situation = situation;
