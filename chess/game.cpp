@@ -7,18 +7,73 @@ Game::Game(QWidget *parent)
 {
     ui->setupUi(this);
     scene = new QGraphicsScene();
-    scene->setSceneRect(0,0,1,1);
+    scene->setSceneRect(-400, -400 , 800, 800);
     ui->graphicsView->setScene(scene);
     level = 4;
     start();
 }
 
-Game::~Game()
+void Game::start()
 {
-    delete ui;
+    moves.clear();
+    writeMoves();
+    while (!situations.empty()) situations.pop();
+    ui->label_2->setText(QString::number(level));
+    situation = new Situation();
+    Situation *nsituation = new Situation();
+    nsituation->copy(situation);
+    situations.push(nsituation);
+    showBoard(true);
 }
 
-void Game::showBoard(bool s, Move m)
+void Game::slotFromPoint(){
+    showBoard(false);
+    writeMoves();
+    QTimer::singleShot(100, this, SLOT(blackTurn()));
+}
+
+void Game::blackTurn()
+{
+    if (situation->isMate(black)){
+        showBoard(0);
+        QMessageBox::information(this," ","Вы победили!\nШах и мат");
+        Situation *nsituation = new Situation();
+        nsituation->copy(situation);
+        situations.push(nsituation);
+        return;
+    }
+    if (situation->isStaleMate(black)){
+        showBoard(0);
+        QMessageBox::information(this," ","Ничья.\nВы поставили пат");
+        Situation *nsituation = new Situation();
+        nsituation->copy(situation);
+        situations.push(nsituation);
+        return;
+    }
+    Move m = situation->solve(0, level, 2 * INF, {0,0,0,0}).first;
+    situation->move(m);
+    moves.push_back(m);
+    writeMoves();
+
+    Situation *nsituation = new Situation();
+    nsituation->copy(situation);
+    situations.push(nsituation);
+
+    showBoard(true, m);
+    if (situation->isMate(white)){
+        showBoard(0, m);
+        QMessageBox::information(this," ","Вы проиграли.\nШах и мат");
+        return;
+    }
+    if (situation->isStaleMate(white)){
+        showBoard(0, m);
+        QMessageBox::information(this," ","Ничья.\nВам поставлен пат");
+        return;
+    }
+    if (situation->isCheck(white)) QMessageBox::information(this,"","Шах!");
+}
+
+void Game::showBoard(bool allowMovement, Move lastMove)
 {
     scene->clear();
     scene->addRect(-430,-430,860,860,QPen(Qt::NoPen),QBrush(QColor("#634936")));
@@ -45,6 +100,7 @@ void Game::showBoard(bool s, Move m)
                 scene->addRect(-400 + i * 100, -400 + j * 100, 100, 100,QPen(Qt::NoPen), QBrush(Qt::darkGray));
             }
 
+    Move m = lastMove;
     if (m.x1 != -1){
         if ((m.x1 + m.y1) % 2 == 0)
             scene->addRect(-400 + m.x1 * 100, -400 + m.y1 * 100, 100, 100,QPen(Qt::red), QBrush(Qt::gray));
@@ -58,88 +114,11 @@ void Game::showBoard(bool s, Move m)
     }
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
-            figures[i][j] = new Figure(scene, situation, &moves, i, j, s);
+            figures[i][j] = new Figure(situation, &moves, i, j, allowMovement);
             scene->addItem(figures[i][j]);
             connect(figures[i][j], SIGNAL(sl()), this, SLOT(slotFromPoint()));
-
         }
     }
-}
-
-void Game::start()
-{
-    moves.clear();
-    writeMoves();
-    while (!situations.empty()) situations.pop();
-    ui->label_2->setText(QString::number(level));
-    situation = new Situation();
-    Situation *nsituation = new Situation();
-    nsituation->copy(situation);
-    situations.push(nsituation);
-    showBoard(1);
-}
-
-void Game::slotFromPoint(){
-    showBoard(0);
-    writeMoves();
-    timer = new QTimer();
-    timer->setInterval(100);
-    connect(timer, SIGNAL(timeout()), this, SLOT(timerOut()));
-    timer->start();
-}
-
-void Game::timerOut(){
-    delete timer;
-    for (int i = 0; i < 8; i++){
-        for (int j = 0; j < 8; j++){
-            scene->removeItem(figures[i][j]);
-            delete figures[i][j];
-        }
-    }
-    blackTurn();
-}
-
-
-void Game::blackTurn()
-{
-    if (situation->isMate(black)){
-        QMessageBox::information(this," ","Вы победили!\nШах и мат");
-        showBoard(0);
-        Situation *nsituation = new Situation();
-        nsituation->copy(situation);
-        situations.push(nsituation);
-        return;
-    }
-    if (situation->isStaleMate(black)){
-        QMessageBox::information(this," ","Ничья.\nВы поставили пат");
-        showBoard(0);
-        Situation *nsituation = new Situation();
-        nsituation->copy(situation);
-        situations.push(nsituation);
-        return;
-    }
-    Move m = situation->solveRec(0, level, 2 * INF, {0,0,0,0}).first;
-    situation->move(m);
-    moves.push_back(m);
-    writeMoves();
-
-    Situation *nsituation = new Situation();
-    nsituation->copy(situation);
-    situations.push(nsituation);
-
-    showBoard(1, m);
-    if (situation->isMate(white)){
-        showBoard(0, m);
-        QMessageBox::information(this," ","Вы проиграли.\nШах и мат");
-        return;
-    }
-    if (situation->isStaleMate(white)){
-        showBoard(0, m);
-        QMessageBox::information(this," ","Ничья.\nВам поставлен пат");
-        return;
-    }
-    if (situation->isCheck(white)) QMessageBox::information(this,"","Шах!");
-
 }
 
 void Game::writeMoves()
@@ -228,8 +207,7 @@ void Game::on_pushButton_7_clicked()
     start();
 }
 
-void Game::on_pushButton_8_clicked()
+Game::~Game()
 {
-    level = 7;
-    start();
+    delete ui;
 }

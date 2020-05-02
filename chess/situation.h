@@ -5,7 +5,7 @@
 #include <QGraphicsItem>
 using namespace std;
 
-const int INF = 1000000000;
+const int INF = (int)1e9;
 
 struct Move{
     int x1, y1, x2, y2;
@@ -94,46 +94,46 @@ const int KNIGHT[8][8] = {
 };
 
 const int PAWN[8][8] = {
-    {   0,   1,  1,   0,   1,   2,  10,   0},
+    {   0,   1,   1,   0,   1,   2,  10,   0},
     {   0,   2,  -1,   0,   1,   2,  10,   0},
     {   0,   2,  -2,   0,   2,   4,  10,   0},
-    {   0,  -4,  0,   4,   5,   6,  10,   0},
-    {   0,  -4,  0,   4,   5,   6,  10,   0},
+    {   0,  -4,   0,   4,   5,   6,  10,   0},
+    {   0,  -4,   0,   4,   5,   6,  10,   0},
     {   0,   2,  -2,   0,   2,   4,  10,   0},
     {   0,   2,  -1,   0,   1,   2,  10,   0},
-    {   0,   1,  1,   0,   1,   2,  10,   0}
+    {   0,   1,   1,   0,   1,   2,  10,   0}
 };
 
 class Situation
 {
 public:
-
     Situation();
-
-    bool isKingMove1 = false, isKingMove2 = false, isRookMove1 = false,
-    isRookMove2= false, isRookMove3 = false, isRookMove4 = false;
-
-    int movePawn = -1;
+    pair<Move,int> solve(int hight, int level, int breakPoint, Move maybeGoodMove);
+    bool canMove(Move m);
+    void move(Move m);
 
     Figures boardFigures[8][8];
-
     Colors boardColors[8][8];
 
-    Figures pawnEnd = queen;
-    Move solve();
-    pair<Move,int> solveRec(int hight, int level, int breakPoint, Move maybeGoodMove);
-    bool isCheckPoint(Colors ncolor, int x0, int y0);
-    bool isValidMove(Move m);
-    bool canMove(Move m);
+    void copy(Situation *a);
+
     bool isStaleMate(Colors color);
     bool isCheck(Colors color);
     bool isMate(Colors color);
-    void move(Move m);
-    bool isBlock(Colors color);
-    void copy(Situation *a);
+
+    Figures pawnEnd = queen;
 private:
+    bool isKingMove1 = false, isKingMove2 = false, isRookMove1 = false,
+    isRookMove2= false, isRookMove3 = false, isRookMove4 = false;
+    int movePawn = -1;
+
     bool isBarrier(int x, int y, int nx, int ny);
-    double getValue();
+    bool isValidMove(Move m);
+
+    bool isBlock(Colors color);
+    bool isCheckPoint(Colors ncolor, int x0, int y0);
+
+    int getValue();
 };
 
 

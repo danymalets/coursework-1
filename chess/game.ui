@@ -54,9 +54,9 @@
     <property name="geometry">
      <rect>
       <x>1040</x>
-      <y>810</y>
-      <width>181</width>
-      <height>20</height>
+      <y>801</y>
+      <width>150</width>
+      <height>25</height>
      </rect>
     </property>
     <property name="font">
@@ -90,9 +90,9 @@
     <property name="geometry">
      <rect>
       <x>880</x>
-      <y>750</y>
+      <y>740</y>
       <width>261</width>
-      <height>21</height>
+      <height>25</height>
      </rect>
     </property>
     <property name="font">
@@ -170,9 +170,9 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>900</x>
-      <y>810</y>
-      <width>181</width>
-      <height>20</height>
+      <y>801</y>
+      <width>150</width>
+      <height>25</height>
      </rect>
     </property>
     <property name="font">
@@ -198,9 +198,9 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>1040</x>
-      <y>780</y>
-      <width>181</width>
-      <height>20</height>
+      <y>771</y>
+      <width>150</width>
+      <height>25</height>
      </rect>
     </property>
     <property name="font">
@@ -271,9 +271,9 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>900</x>
-      <y>780</y>
-      <width>181</width>
-      <height>20</height>
+      <y>770</y>
+      <width>150</width>
+      <height>25</height>
      </rect>
     </property>
     <property name="font">

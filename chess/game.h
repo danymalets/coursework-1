@@ -4,12 +4,11 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QMessageBox>
+#include <QTimer>
 #include <vector>
+#include <stack>
 #include "figure.h"
 #include "situation.h"
-#include <QTimer>
-#include <QThread>
-#include <stack>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Game; }
@@ -18,29 +17,28 @@ QT_END_NAMESPACE
 class Game : public QMainWindow
 {
     Q_OBJECT
-
 public:
     explicit Game(QWidget *parent = 0);
     ~Game();
-    void showBoard(bool s, Move m = {-1,-1,-1,-1});
-private:
+
     Ui::Game *ui;
+
+    int level;
 
     QGraphicsScene  *scene;
     stack<Situation*> situations;
     Situation *situation;
     Figure *figures[8][8];
-    void isBlock(Situation *s, Colors color);
-    void start();
-    int level;
-    void blackTurn();
     vector<Move> moves;
+
+    void start();
+
     void writeMoves();
-    bool whiteTurnEnd = false, whiteTurnEndP = false;
-    QTimer *timer;
+    void showBoard(bool allowMovement, Move lastMove = {-1,-1,-1,-1});
 private slots:
     void slotFromPoint();
-    void timerOut();
+    void blackTurn();
+
     void on_pushButton_clicked();
     void on_radioButton_clicked();
     void on_radioButton_2_clicked();
@@ -52,6 +50,6 @@ private slots:
     void on_pushButton_5_clicked();
     void on_pushButton_6_clicked();
     void on_pushButton_7_clicked();
-    void on_pushButton_8_clicked();
 };
+
 #endif // GAME_H

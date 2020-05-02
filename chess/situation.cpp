@@ -43,37 +43,41 @@ bool Situation::isValidMove(Move m)
                 (boardColors[m.x1][m.y1] == white && !isKingMove2 && !isRookMove4 && m.x2 == 6 && m.y2 == 7 &&
                 boardFigures[5][7] == noFigure && boardFigures[6][7] == noFigure &&
                 !isCheckPoint(black, 4 , 7) && !isCheckPoint(black, 5, 7));
-
-
     case queen:
         return (m.x1 == m.x2 || m.y1 == m.y2 || abs(m.x2 - m.x1) == abs(m.y2 - m.y1)) && !isBarrier(m.x1, m.y1, m.x2, m.y2);
-
     case rook:
         return (m.x1 == m.x2 || m.y1 == m.y2) && !isBarrier(m.x1, m.y1, m.x2, m.y2);
-
     case knight:
         return abs(m.x2 - m.x1) + abs(m.y2 - m.y1) == 3 &&
                 m.x2 != m.x1 && m.y2 != m.y1;
-
     case bishop:
         return abs(m.x2 - m.x1) == abs(m.y2 - m.y1) && !isBarrier(m.x1, m.y1, m.x2, m.y2);
-
     case pawn:
-        if (boardColors[m.x1][m.y1] == white) return (m.x2 == m.x1 &&
+        if (boardColors[m.x1][m.y1] == white)
+            return (m.x2 == m.x1 &&
                 (m.y1 - m.y2 == 1 || (m.y1 - m.y2 == 2 && boardFigures[m.x2][m.y2 + 1] == noFigure && m.y1 == 6))
                 && boardFigures[m.x2][m.y2] == noFigure) ||
                 (abs(m.x2 - m.x1) == 1 && m.y1 - m.y2 == 1 && boardColors[m.x2][m.y2] == black) ||
                 (movePawn == m.x2 && abs(m.x1 - m.x2) == 1 && m.y1 == 3 && m.y2 == 2);
-        else return (m.x2 == m.x1 &&
+        else
+            return (m.x2 == m.x1 &&
                 (m.y2 - m.y1 == 1 || (m.y2 - m.y1 == 2 && boardFigures[m.x2][m.y2 - 1] == noFigure && m.y1 == 1))
                 && boardFigures[m.x2][m.y2] == noFigure) ||
                 (abs(m.x2 - m.x1) == 1 && m.y2 - m.y1 == 1 && boardColors[m.x2][m.y2] == white)||
                 (movePawn == m.x2 && abs(m.x1 - m.x2) == 1 && m.y1 == 4 && m.y2 == 5);
-
-
     default:
         return false;
     }
+}
+
+bool Situation::isBarrier(int x, int y, int nx, int ny)
+{
+    int stepi = (x == nx) ? 0 : abs(nx - x) / (nx - x);
+    int stepj = (y == ny) ? 0 : abs(ny - y) / (ny - y);
+    for (int i = x + stepi, j = y + stepj; i != nx || j != ny; i += stepi, j += stepj){
+        if (boardFigures[i][j] != noFigure) return true;
+    }
+    return false;
 }
 
 bool Situation::canMove(Move m)
@@ -160,7 +164,6 @@ bool Situation::isStaleMate(Colors color)
     return !isCheck(color) && isBlock(color);
 }
 
-
 void Situation::move(Move m)
 {
     if (m.x1 == 4 && m.y1 == 0) isKingMove1 = true;
@@ -192,18 +195,7 @@ void Situation::move(Move m)
     }
 }
 
-
-bool Situation::isBarrier(int x, int y, int nx, int ny)
-{
-    int stepi = (x == nx) ? 0 : abs(nx - x) / (nx - x);
-    int stepj = (y == ny) ? 0 : abs(ny - y) / (ny - y);
-    for (int i = x + stepi, j = y + stepj; i != nx || j != ny; i += stepi, j += stepj){
-        if (boardFigures[i][j] != noFigure) return true;
-    }
-    return false;
-}
-
-pair<Move,int> Situation::solveRec(int hight, int level, int breakPoint, Move maybeGoodMove)
+pair<Move,int> Situation::solve(int hight, int level, int breakPoint, Move maybeGoodMove)
 {
     if (hight == level) return {{0,0,0,0}, getValue()};
     bool b = false;
@@ -218,7 +210,7 @@ pair<Move,int> Situation::solveRec(int hight, int level, int breakPoint, Move ma
             Situation *nsituation = new Situation();
             nsituation->copy(this);
             nsituation->move(maybeGoodMove);
-            pair<Move,int> t = nsituation->solveRec(hight + 1, level, value, secondBestMove);
+            pair<Move,int> t = nsituation->solve(hight + 1, level, value, secondBestMove);
             delete nsituation;
             if ((hight % 2 == 0) == (t.second > value)) {
                 secondBestMove = t.first;
@@ -242,7 +234,7 @@ pair<Move,int> Situation::solveRec(int hight, int level, int breakPoint, Move ma
                             Situation *nsituation = new Situation();
                             nsituation->copy(this);
                             nsituation->move({x1,y1,x2,y2});
-                            pair<Move,int> t = nsituation->solveRec(hight + 1, level, value, secondBestMove);
+                            pair<Move,int> t = nsituation->solve(hight + 1, level, value, secondBestMove);
                             delete nsituation;
                             if ((hight % 2 == 0) == (t.second > value)) {
                                 secondBestMove = t.first;
@@ -274,7 +266,7 @@ pair<Move,int> Situation::solveRec(int hight, int level, int breakPoint, Move ma
     return {bestMove, value};
 }
 
-double Situation::getValue()
+int Situation::getValue()
 {
     double res = 0;
     for (int i = 0; i < 8; i++){
@@ -283,10 +275,10 @@ double Situation::getValue()
                 switch (boardFigures[i][j]){
                 case king:     res -= 1000000 + KING[i][7 -j]; break;
                 case queen:    res -= 180 + QUEEN[i][7 - j]; break;
-                case rook:     res -= 100 + ROOK[i][7-j]; break;
-                case knight:   res -= 60 + KNIGHT[i][7-j]; break;
-                case bishop:   res -= 60 + BISHOP[i][7-j]; break;
-                case pawn:     res -= 20 + PAWN[i][7-j]; break;
+                case rook:     res -= 100 + ROOK[i][7 - j]; break;
+                case knight:   res -= 60 + KNIGHT[i][7 - j]; break;
+                case bishop:   res -= 60 + BISHOP[i][7 - j]; break;
+                case pawn:     res -= 20 + PAWN[i][7 - j]; break;
                 case noFigure: res -= 0;
                 }
             }

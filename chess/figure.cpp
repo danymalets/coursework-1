@@ -1,7 +1,7 @@
 #include "figure.h"
 
-Figure::Figure(QGraphicsScene *scene, Situation *situation, vector<Move> *moves,
-               int x, int y, bool s, QObject *parent): QObject(parent), QGraphicsItem()
+Figure::Figure(Situation *situation, vector<Move> *moves,
+               int x, int y, bool allowMovement, QObject *parent): QObject(parent), QGraphicsItem()
 {
     this->scene = scene;
     this->situation = situation;
@@ -10,13 +10,8 @@ Figure::Figure(QGraphicsScene *scene, Situation *situation, vector<Move> *moves,
     this->moves = moves;
     setPos(-350 + x * 100, -350 + y * 100);
 
-    if (s && situation->boardColors[x][y] == white)
+    if (allowMovement && situation->boardColors[x][y] == white)
         setFlag(ItemIsMovable);
-}
-
-Figure::~Figure()
-{
-
 }
 
 QRectF Figure::boundingRect() const
@@ -54,32 +49,32 @@ void Figure::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
         painter->drawEllipse(-10, -10, 20, 20);
         break;
     case rook:
-        painter->drawLine(-25, -40, 25, -40);
-        painter->drawLine(25, -40, 25, -20);
-        painter->drawLine(25, -20, 18, -20);
-        painter->drawLine(18, -20, 18, 20);
-        painter->drawLine(18, 20, 25, 20);
-        painter->drawLine(25, 20, 25, 40);
-        painter->drawLine(25, 40, -25, 40);
-        painter->drawLine(-25, 40, -25, 20);
-        painter->drawLine(-25, 20, -18, 20);
-        painter->drawLine(-18, 20, -18, -20);
+        painter->drawLine(-25, -40,  25, -40);
+        painter->drawLine( 25, -40,  25, -20);
+        painter->drawLine( 25, -20,  18, -20);
+        painter->drawLine( 18, -20,  18,  20);
+        painter->drawLine( 18,  20,  25,  20);
+        painter->drawLine( 25,  20,  25,  40);
+        painter->drawLine( 25,  40, -25,  40);
+        painter->drawLine(-25,  40, -25,  20);
+        painter->drawLine(-25,  20, -18,  20);
+        painter->drawLine(-18,  20, -18, -20);
         painter->drawLine(-18, -20, -25, -20);
         painter->drawLine(-25, -20, -25, -40);
         break;
     case knight:
-        painter->drawLine(-25, -40, 25, -40);
-        painter->drawLine(25, -40, 25, 40);
-        painter->drawLine(25, 40, -25, 40);
-        painter->drawLine(-25, 40, -25, 20);
-        painter->drawLine(-25, 20, 10, -20);
-        painter->drawLine(10, -20, -25, -20);
+        painter->drawLine(-25, -40,  25, -40);
+        painter->drawLine( 25, -40,  25,  40);
+        painter->drawLine( 25,  40, -25,  40);
+        painter->drawLine(-25,  40, -25,  20);
+        painter->drawLine(-25,  20,  10, -20);
+        painter->drawLine( 10, -20, -25, -20);
         painter->drawLine(-25, -20, -25, -40);
         break;
     case bishop:
-        painter->drawLine(0, -40, 30, 40);
-        painter->drawLine(30, 40, -30, 40);
-        painter->drawLine(-30, 40, 0, -40);
+        painter->drawLine(  0, -40,  30,  40);
+        painter->drawLine( 30,  40, -30,  40);
+        painter->drawLine(-30,  40,   0, -40);
         break;
     case pawn:
         painter->drawRect(-20, -20, 40, 40);
