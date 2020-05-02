@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef GAME_H
+#define GAME_H
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -10,22 +10,21 @@
 #include <QTimer>
 #include <QThread>
 #include <stack>
-using namespace std;
 
-namespace Ui {
-    class MainWindow;
-}
+QT_BEGIN_NAMESPACE
+namespace Ui { class Game; }
+QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+class Game : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    explicit Game(QWidget *parent = 0);
+    ~Game();
     void showBoard(bool s, Move m = {-1,-1,-1,-1});
 private:
-    Ui::MainWindow *ui;
+    Ui::Game *ui;
 
     QGraphicsScene  *scene;
     stack<Situation*> situations;
@@ -55,5 +54,4 @@ private slots:
     void on_pushButton_7_clicked();
     void on_pushButton_8_clicked();
 };
-
-#endif // MAINWINDOW_H
+#endif // GAME_H

@@ -1,7 +1,9 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "game.h"
+#include "ui_game.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+Game::Game(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::Game)
 {
     ui->setupUi(this);
     scene = new QGraphicsScene();
@@ -11,12 +13,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     start();
 }
 
-MainWindow::~MainWindow()
+Game::~Game()
 {
     delete ui;
 }
 
-void MainWindow::showBoard(bool s, Move m)
+void Game::showBoard(bool s, Move m)
 {
     scene->clear();
     scene->addRect(-430,-430,860,860,QPen(Qt::NoPen),QBrush(QColor("#634936")));
@@ -64,7 +66,7 @@ void MainWindow::showBoard(bool s, Move m)
     }
 }
 
-void MainWindow::start()
+void Game::start()
 {
     moves.clear();
     writeMoves();
@@ -77,7 +79,7 @@ void MainWindow::start()
     showBoard(1);
 }
 
-void MainWindow::slotFromPoint(){
+void Game::slotFromPoint(){
     showBoard(0);
     writeMoves();
     timer = new QTimer();
@@ -86,7 +88,7 @@ void MainWindow::slotFromPoint(){
     timer->start();
 }
 
-void MainWindow::timerOut(){
+void Game::timerOut(){
     delete timer;
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
@@ -98,10 +100,10 @@ void MainWindow::timerOut(){
 }
 
 
-void MainWindow::blackTurn()
+void Game::blackTurn()
 {
     if (situation->isMate(black)){
-        QMessageBox::information(this,"","Вы победили!\nШах и мат");
+        QMessageBox::information(this," ","Вы победили!\nШах и мат");
         showBoard(0);
         Situation *nsituation = new Situation();
         nsituation->copy(situation);
@@ -109,7 +111,7 @@ void MainWindow::blackTurn()
         return;
     }
     if (situation->isStaleMate(black)){
-        QMessageBox::information(this,"","Ничья.\nВы поставили пат");
+        QMessageBox::information(this," ","Ничья.\nВы поставили пат");
         showBoard(0);
         Situation *nsituation = new Situation();
         nsituation->copy(situation);
@@ -128,19 +130,19 @@ void MainWindow::blackTurn()
     showBoard(1, m);
     if (situation->isMate(white)){
         showBoard(0, m);
-        QMessageBox::information(this,"","Вы проиграли.\nШах и мат");
+        QMessageBox::information(this," ","Вы проиграли.\nШах и мат");
         return;
     }
     if (situation->isStaleMate(white)){
         showBoard(0, m);
-        QMessageBox::information(this,"","Ничья.\nВам поставлен пат");
+        QMessageBox::information(this," ","Ничья.\nВам поставлен пат");
         return;
     }
     if (situation->isCheck(white)) QMessageBox::information(this,"","Шах!");
 
 }
 
-void MainWindow::writeMoves()
+void Game::writeMoves()
 {
     ui->textEdit->setText("");
     for (int i = 0; i < (int)moves.size(); i+=2){
@@ -158,7 +160,7 @@ void MainWindow::writeMoves()
     }
 }
 
-void MainWindow::on_pushButton_clicked()
+void Game::on_pushButton_clicked()
 {
     if (situations.size() > 1) {
         situations.pop();
@@ -170,63 +172,63 @@ void MainWindow::on_pushButton_clicked()
     }
 }
 
-void MainWindow::on_radioButton_clicked()
+void Game::on_radioButton_clicked()
 {
     situation->pawnEnd = queen;
 }
 
-void MainWindow::on_radioButton_2_clicked()
+void Game::on_radioButton_2_clicked()
 {
     situation->pawnEnd = rook;
 }
 
-void MainWindow::on_radioButton_3_clicked()
+void Game::on_radioButton_3_clicked()
 {
     situation->pawnEnd = bishop;
 }
 
-void MainWindow::on_radioButton_4_clicked()
+void Game::on_radioButton_4_clicked()
 {
     situation->pawnEnd = knight;
 }
 
-void MainWindow::on_pushButton_2_clicked()
+void Game::on_pushButton_2_clicked()
 {
     level = 1;
     start();
 }
 
-void MainWindow::on_pushButton_3_clicked()
+void Game::on_pushButton_3_clicked()
 {
     level = 2;
     start();
 }
 
-void MainWindow::on_pushButton_4_clicked()
+void Game::on_pushButton_4_clicked()
 {
     level = 3;
     start();
 }
 
-void MainWindow::on_pushButton_5_clicked()
+void Game::on_pushButton_5_clicked()
 {
     level = 4;
     start();
 }
 
-void MainWindow::on_pushButton_6_clicked()
+void Game::on_pushButton_6_clicked()
 {
     level = 5;
     start();
 }
 
-void MainWindow::on_pushButton_7_clicked()
+void Game::on_pushButton_7_clicked()
 {
     level = 6;
     start();
 }
 
-void MainWindow::on_pushButton_8_clicked()
+void Game::on_pushButton_8_clicked()
 {
     level = 7;
     start();

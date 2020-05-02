@@ -18,16 +18,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     figure.cpp \
     main.cpp \
-    mainwindow.cpp \
+    game.cpp \
     situation.cpp
 
 HEADERS += \
     figure.h \
-    mainwindow.h \
+    game.h \
     situation.h
 
 FORMS += \
-    mainwindow.ui
+    game.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
