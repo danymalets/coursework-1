@@ -29,10 +29,12 @@ void Game::start()
     if (userColor == black){
         Move m = board->solve(0, level, 2 * INF, {0,0,0,0}).first;
         board->move(m);
+        if (userColor == black) m = {m.x1, 7 - m.y1, m.x2, 7 - m.y2};
         moves.push_back(m);
         writeMoves();
+        showBoard(true, m);
     }
-    showBoard(true);
+    else showBoard(true);
 }
 
 void Game::slotFromPoint(){
@@ -61,6 +63,7 @@ void Game::blackTurn()
     }
     Move m = board->solve(0, level, 2 * INF, {0,0,0,0}).first;
     board->move(m);
+    if (userColor == black) m = {m.x1, 7 - m.y1, m.x2, 7 - m.y2};
     moves.push_back(m);
     writeMoves();
 
@@ -85,7 +88,7 @@ void Game::blackTurn()
 void Game::showBoard(bool allowMovement, Move lastMove)
 {
     scene->clear();
-    scene->addRect(-430,-430,860,860,QPen(Qt::NoPen),QBrush(QColor("#634936")));
+    scene->addRect(-430, -430, 860, 860, QPen(Qt::NoPen), QBrush(QColor("#634936")));
     QGraphicsTextItem *text;
     if (userColor == white){
         for (int i = 0; i < 8; i++){
@@ -122,6 +125,7 @@ void Game::showBoard(bool allowMovement, Move lastMove)
             }
 
     Move m = lastMove;
+    if (userColor == black) m = {7 - m.x1, 7 - m.y1, 7 - m.x2, 7 - m.y2};
     if (m.x1 != -1){
         if ((m.x1 + m.y1) % 2 == 0)
             scene->addRect(-400 + m.x1 * 100, -400 + m.y1 * 100, 100, 100, QPen(Qt::red), QBrush(Qt::gray));

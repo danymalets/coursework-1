@@ -96,7 +96,8 @@ void Figure::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     qDebug() << x << ' ' << y << ' ' << nx << ' ' << ny;
     if (board->canMove({x, y, nx, ny})){
         board->move({x,y,nx,ny});
-        moves->push_back({x,y,nx,ny});
+        if (userColor == white) moves->push_back({x,y,nx,ny});
+        else moves->push_back({x,7-y,nx,7-ny});
         emit sl();
     }
     else{
