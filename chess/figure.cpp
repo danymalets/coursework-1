@@ -1,35 +1,34 @@
 #include "figure.h"
+#include <QtGui>
 
-Figure::Figure(Situation *situation, vector<Move> *moves,
-               int x, int y, bool allowMovement, QObject *parent): QObject(parent), QGraphicsItem()
+Figure::Figure(Board *board, vector<Move> *moves,
+    int x, int y, bool allowMovement, Colors userColor, QObject *parent): QObject(parent), QGraphicsItem()
 {
-    this->scene = scene;
-    this->situation = situation;
+    this->board = board;
+    this->moves = moves;
+    this->userColor = userColor;
     this->x = x;
     this->y = y;
-    this->moves = moves;
-    setPos(-350 + x * 100, -350 + y * 100);
-
-    if (allowMovement && situation->boardColors[x][y] == white)
-        setFlag(ItemIsMovable);
+    if (userColor == white) setPos(-350 + x * 100, -350 + y * 100);
+    else setPos(350 - x * 100, -350 + y * 100);
+    if (allowMovement && board->boardColors[x][y] == white) setFlag(ItemIsMovable);
 }
 
 QRectF Figure::boundingRect() const
 {
-
     return QRectF(-50, -50, 100, 100);
 }
 
 void Figure::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QBrush brush;
-    if (situation->boardColors[x][y] == black){
+    if ((board->boardColors[x][y] == black) == userColor){
         painter->setPen(QPen(Qt::black, 4));
     }
     else{
         painter->setPen(QPen(Qt::white, 4));
     }
-    switch (situation->boardFigures[x][y]){
+    switch (board->boardFigures[x][y]){
     case king:
         painter->drawLine(-10, -40,  10, -40);
         painter->drawLine( 10, -40,  10, -10);
@@ -92,13 +91,16 @@ void Figure::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     QPointF point = scenePos();
     int nx, ny;
     nx = (point.x() + 400) / 100;
+    if (userColor == black) nx = 7 - nx;
     ny = (point.y() + 400) / 100;
-    if (situation->canMove({x, y, nx, ny})){
-        situation->move({x,y,nx,ny});
+    qDebug() << x << ' ' << y << ' ' << nx << ' ' << ny;
+    if (board->canMove({x, y, nx, ny})){
+        board->move({x,y,nx,ny});
         moves->push_back({x,y,nx,ny});
         emit sl();
     }
     else{
-        setPos(-350 + x * 100, -350 + y * 100);
+        if (userColor == white) setPos(-350 + x * 100, -350 + y * 100);
+        else setPos(350 - x * 100, -350 + y * 100);
     }
 }

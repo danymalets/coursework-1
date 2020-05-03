@@ -1,5 +1,5 @@
-#ifndef SITUATION_H
-#define SITUATION_H
+#ifndef BOARD_H
+#define BOARD_H
 
 #include <QObject>
 #include <QGraphicsItem>
@@ -104,10 +104,10 @@ const int PAWN[8][8] = {
     {   0,   1,   1,   0,   1,   2,  10,   0}
 };
 
-class Situation
+class Board
 {
 public:
-    Situation();
+    Board();
     pair<Move,int> solve(int hight, int level, int breakPoint, Move maybeGoodMove);
     bool canMove(Move m);
     void move(Move m);
@@ -115,7 +115,7 @@ public:
     Figures boardFigures[8][8];
     Colors boardColors[8][8];
 
-    void copy(Situation *a);
+    void copy(Board *a);
 
     bool isStaleMate(Colors color);
     bool isCheck(Colors color);
@@ -137,4 +137,4 @@ private:
 };
 
 
-#endif // SITUATION_H
+#endif // BOARD_H

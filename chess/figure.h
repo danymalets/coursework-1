@@ -4,23 +4,23 @@
 #include <QObject>
 #include <QGraphicsItem>
 #include <QPainter>
-#include "situation.h"
+#include "board.h"
 
 class Figure : public QObject, public QGraphicsItem
 {
     Q_OBJECT
 public:
-    explicit Figure(Situation *situation, vector<Move> *moves,
-                    int x, int y, bool allowMovement, QObject *parent = 0);
+    explicit Figure(Board *board, vector<Move> *moves,
+        int x, int y, bool allowMovement, Colors userColor, QObject *parent = 0);
 signals:
     void sl();
 private:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     vector<Move> *moves;
-    void move(int nx, int ny);
     QGraphicsScene *scene;
-    Situation *situation;
+    Board *board;
     Figures *figures;
+    Colors userColor;
     int x, y;
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);

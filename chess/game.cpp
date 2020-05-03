@@ -6,10 +6,13 @@ Game::Game(QWidget *parent)
     , ui(new Ui::Game)
 {
     ui->setupUi(this);
+    setWindowTitle("Шахматы");
     scene = new QGraphicsScene();
     scene->setSceneRect(-400, -400 , 800, 800);
+    ui->textEdit->setReadOnly(true);
     ui->graphicsView->setScene(scene);
     level = 4;
+    userColor = white;
     start();
 }
 
@@ -17,12 +20,18 @@ void Game::start()
 {
     moves.clear();
     writeMoves();
-    while (!situations.empty()) situations.pop();
+    while (!boards.empty()) boards.pop();
     ui->label_2->setText(QString::number(level));
-    situation = new Situation();
-    Situation *nsituation = new Situation();
-    nsituation->copy(situation);
-    situations.push(nsituation);
+    board = new Board();
+    Board *nBoard = new Board();
+    nBoard->copy(board);
+    boards.push(nBoard);
+    if (userColor == black){
+        Move m = board->solve(0, level, 2 * INF, {0,0,0,0}).first;
+        board->move(m);
+        moves.push_back(m);
+        writeMoves();
+    }
     showBoard(true);
 }
 
@@ -34,43 +43,43 @@ void Game::slotFromPoint(){
 
 void Game::blackTurn()
 {
-    if (situation->isMate(black)){
+    if (board->isMate(black)){
         showBoard(0);
         QMessageBox::information(this," ","Вы победили!\nШах и мат");
-        Situation *nsituation = new Situation();
-        nsituation->copy(situation);
-        situations.push(nsituation);
+        Board *nBoard = new Board();
+        nBoard->copy(board);
+        boards.push(nBoard);
         return;
     }
-    if (situation->isStaleMate(black)){
+    if (board->isStaleMate(black)){
         showBoard(0);
         QMessageBox::information(this," ","Ничья.\nВы поставили пат");
-        Situation *nsituation = new Situation();
-        nsituation->copy(situation);
-        situations.push(nsituation);
+        Board *nBoard = new Board();
+        nBoard->copy(board);
+        boards.push(nBoard);
         return;
     }
-    Move m = situation->solve(0, level, 2 * INF, {0,0,0,0}).first;
-    situation->move(m);
+    Move m = board->solve(0, level, 2 * INF, {0,0,0,0}).first;
+    board->move(m);
     moves.push_back(m);
     writeMoves();
 
-    Situation *nsituation = new Situation();
-    nsituation->copy(situation);
-    situations.push(nsituation);
+    Board *nBoard = new Board();
+    nBoard->copy(board);
+    boards.push(nBoard);
 
     showBoard(true, m);
-    if (situation->isMate(white)){
+    if (board->isMate(white)){
         showBoard(0, m);
         QMessageBox::information(this," ","Вы проиграли.\nШах и мат");
         return;
     }
-    if (situation->isStaleMate(white)){
+    if (board->isStaleMate(white)){
         showBoard(0, m);
         QMessageBox::information(this," ","Ничья.\nВам поставлен пат");
         return;
     }
-    if (situation->isCheck(white)) QMessageBox::information(this,"","Шах!");
+    if (board->isCheck(white)) QMessageBox::information(this,"","Шах!");
 }
 
 void Game::showBoard(bool allowMovement, Move lastMove)
@@ -78,43 +87,55 @@ void Game::showBoard(bool allowMovement, Move lastMove)
     scene->clear();
     scene->addRect(-430,-430,860,860,QPen(Qt::NoPen),QBrush(QColor("#634936")));
     QGraphicsTextItem *text;
-
-    for (int i = 0; i < 8; i++){
-        text = scene->addText(QString(char(i + 'a')), QFont("calibri", 18));
-        text->setDefaultTextColor(QColor(214, 198, 174));
-        text->setPos(-360 + i * 100, 400);
+    if (userColor == white){
+        for (int i = 0; i < 8; i++){
+            text = scene->addText(QString(char(i + 'a')), QFont("calibri", 18));
+            text->setDefaultTextColor(QColor(214, 198, 174));
+            text->setPos(-360 + i * 100, 400);
+        }
+        for (int i = 0; i < 8; i++){
+            text = scene->addText(QString::number(i + 1), QFont("calibri", 18));
+            text->setDefaultTextColor(QColor(214, 198, 174));
+            text->setPos(-421, 335 - i * 100);
+        }
     }
-
-    for (int i = 0; i < 8; i++){
-        text = scene->addText(QString::number(i + 1), QFont("calibri", 18));
-        text->setDefaultTextColor(QColor(214, 198, 174));
-        text->setPos(-421, 335 - i * 100);
+    else{
+        for (int i = 0; i < 8; i++){
+            text = scene->addText(QString(char((7 - i) + 'a')), QFont("calibri", 18));
+            text->setDefaultTextColor(QColor(214, 198, 174));
+            text->setPos(-360 + i * 100, 400);
+        }
+        for (int i = 0; i < 8; i++){
+            text = scene->addText(QString::number(8 - i), QFont("calibri", 18));
+            text->setDefaultTextColor(QColor(214, 198, 174));
+            text->setPos(-421, 335 - i * 100);
+        }
     }
 
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 8; j++)
             if ((i + j) % 2 == 0){
-                scene->addRect(-400 + i * 100, -400 + j * 100, 100, 100,QPen(Qt::NoPen), QBrush(Qt::gray));
+                scene->addRect(-400 + i * 100, -400 + j * 100, 100, 100, QPen(Qt::NoPen), QBrush(Qt::gray));
             }
             else{
-                scene->addRect(-400 + i * 100, -400 + j * 100, 100, 100,QPen(Qt::NoPen), QBrush(Qt::darkGray));
+                scene->addRect(-400 + i * 100, -400 + j * 100, 100, 100, QPen(Qt::NoPen), QBrush(Qt::darkGray));
             }
 
     Move m = lastMove;
     if (m.x1 != -1){
         if ((m.x1 + m.y1) % 2 == 0)
-            scene->addRect(-400 + m.x1 * 100, -400 + m.y1 * 100, 100, 100,QPen(Qt::red), QBrush(Qt::gray));
+            scene->addRect(-400 + m.x1 * 100, -400 + m.y1 * 100, 100, 100, QPen(Qt::red), QBrush(Qt::gray));
         else
-            scene->addRect(-400 + m.x1 * 100, -400 + m.y1 * 100, 100, 100,QPen(Qt::red), QBrush(Qt::darkGray));
+            scene->addRect(-400 + m.x1 * 100, -400 + m.y1 * 100, 100, 100, QPen(Qt::red), QBrush(Qt::darkGray));
 
         if ((m.x2 + m.y2) % 2 == 0)
-            scene->addRect(-400 + m.x2 * 100, -400 + m.y2 * 100, 100, 100,QPen(Qt::red), QBrush(Qt::gray));
+            scene->addRect(-400 + m.x2 * 100, -400 + m.y2 * 100, 100, 100, QPen(Qt::red), QBrush(Qt::gray));
         else
-            scene->addRect(-400 + m.x2 * 100, -400 + m.y2 * 100, 100, 100,QPen(Qt::red), QBrush(Qt::darkGray));
+            scene->addRect(-400 + m.x2 * 100, -400 + m.y2 * 100, 100, 100, QPen(Qt::red), QBrush(Qt::darkGray));
     }
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
-            figures[i][j] = new Figure(situation, &moves, i, j, allowMovement);
+            figures[i][j] = new Figure(board, &moves, i, j, allowMovement, userColor);
             scene->addItem(figures[i][j]);
             connect(figures[i][j], SIGNAL(sl()), this, SLOT(slotFromPoint()));
         }
@@ -124,26 +145,26 @@ void Game::showBoard(bool allowMovement, Move lastMove)
 void Game::writeMoves()
 {
     ui->textEdit->setText("");
-    for (int i = 0; i < (int)moves.size(); i+=2){
+    for (int i = 0; i < (int)moves.size(); i += 2){
         if (i + 1 == (int)moves.size())
-            ui->textEdit->append(QString::number(i/2 + 1) + ".  "+ (moves[i].x1 + 'a') +
+            ui->textEdit->append(QString::number(i / 2 + 1) + ".  "+ (moves[i].x1 + 'a') +
                                  QString::number(8 - moves[i].y1) + "―" + (moves[i].x2 + 'a') +
                                  QString::number(8 - moves[i].y2));
         else
-            ui->textEdit->append(QString::number(i/2 + 1) + ".  "+ (moves[i].x1 + 'a') +
+            ui->textEdit->append(QString::number(i / 2 + 1) + ".  "+ (moves[i].x1 + 'a') +
                                 QString::number(8 - moves[i].y1) + "―" + (moves[i].x2 + 'a') +
                                 QString::number(8 - moves[i].y2) + "   " +
-                                   (moves[i+1].x1 + 'a') +
-                                   QString::number(8 - moves[i+1].y1) + "―" + (moves[i+1].x2 + 'a') +
-                                   QString::number(8 - moves[i+1].y2));
+                                   (moves[i + 1].x1 + 'a') +
+                                   QString::number(8 - moves[i + 1].y1) + "―" + (moves[i + 1].x2 + 'a') +
+                                   QString::number(8 - moves[i + 1].y2));
     }
 }
 
 void Game::on_pushButton_clicked()
 {
-    if (situations.size() > 1) {
-        situations.pop();
-        situation->copy(situations.top());
+    if (boards.size() > 1) {
+        boards.pop();
+        board->copy(boards.top());
         moves.pop_back();
         moves.pop_back();
         writeMoves();
@@ -153,22 +174,22 @@ void Game::on_pushButton_clicked()
 
 void Game::on_radioButton_clicked()
 {
-    situation->pawnEnd = queen;
+    board->pawnEnd = queen;
 }
 
 void Game::on_radioButton_2_clicked()
 {
-    situation->pawnEnd = rook;
+    board->pawnEnd = rook;
 }
 
 void Game::on_radioButton_3_clicked()
 {
-    situation->pawnEnd = bishop;
+    board->pawnEnd = bishop;
 }
 
 void Game::on_radioButton_4_clicked()
 {
-    situation->pawnEnd = knight;
+    board->pawnEnd = knight;
 }
 
 void Game::on_pushButton_2_clicked()
@@ -210,4 +231,16 @@ void Game::on_pushButton_7_clicked()
 Game::~Game()
 {
     delete ui;
+}
+
+void Game::on_pushButton_8_clicked()
+{
+    userColor = white;
+    start();
+}
+
+void Game::on_pushButton_9_clicked()
+{
+    userColor = black;
+    start();
 }

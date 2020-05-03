@@ -8,7 +8,7 @@
 #include <vector>
 #include <stack>
 #include "figure.h"
-#include "situation.h"
+#include "board.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Game; }
@@ -24,10 +24,11 @@ public:
     Ui::Game *ui;
 
     int level;
+    Colors userColor;
 
     QGraphicsScene  *scene;
-    stack<Situation*> situations;
-    Situation *situation;
+    stack<Board*> boards;
+    Board *board;
     Figure *figures[8][8];
     vector<Move> moves;
 
@@ -50,6 +51,8 @@ private slots:
     void on_pushButton_5_clicked();
     void on_pushButton_6_clicked();
     void on_pushButton_7_clicked();
+    void on_pushButton_8_clicked();
+    void on_pushButton_9_clicked();
 };
 
 #endif // GAME_H

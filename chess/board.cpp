@@ -1,12 +1,12 @@
-#include "situation.h"
+#include "board.h"
 
 struct Vertex{
-    Situation situation;
+    Board Board;
     int hight, parent, value, child;
     Move m;
 };
 
-Situation::Situation()
+Board::Board()
 {
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
@@ -20,7 +20,7 @@ Situation::Situation()
     }
 }
 
-bool Situation::isValidMove(Move m)
+bool Board::isValidMove(Move m)
 {
     if (m.x2 < 0 || m.x2 >= 8 || m.y2 < 0 || m.y2 >= 8 || (m.x2 == m.x1 && m.y2 == m.y1)
             || boardColors[m.x1][m.y1] == boardColors[m.x2][m.y2] || boardFigures[m.x1][m.y1] == noFigure) return false;
@@ -70,7 +70,7 @@ bool Situation::isValidMove(Move m)
     }
 }
 
-bool Situation::isBarrier(int x, int y, int nx, int ny)
+bool Board::isBarrier(int x, int y, int nx, int ny)
 {
     int stepi = (x == nx) ? 0 : abs(nx - x) / (nx - x);
     int stepj = (y == ny) ? 0 : abs(ny - y) / (ny - y);
@@ -80,24 +80,24 @@ bool Situation::isBarrier(int x, int y, int nx, int ny)
     return false;
 }
 
-bool Situation::canMove(Move m)
+bool Board::canMove(Move m)
 {
     if (!isValidMove(m)) return false;
-    Situation n_situation;
+    Board nBoard;
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
-            n_situation.boardFigures[i][j] = boardFigures[i][j];
-            n_situation.boardColors[i][j] = boardColors[i][j];
+            nBoard.boardFigures[i][j] = boardFigures[i][j];
+            nBoard.boardColors[i][j] = boardColors[i][j];
         }
     }
-    n_situation.move(m);
-    return !n_situation.isCheck(boardColors[m.x1][m.y1]);
+    nBoard.move(m);
+    return !nBoard.isCheck(boardColors[m.x1][m.y1]);
 }
 
-bool Situation::isCheckPoint(Colors ncolor, int x0, int y0){
+bool Board::isCheckPoint(Colors color, int x0, int y0){
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
-            if (boardColors[i][j] == ncolor && isValidMove({i,j,x0,y0})){
+            if (boardColors[i][j] == color && isValidMove({i,j,x0,y0})){
                 return true;
             }
         }
@@ -105,7 +105,7 @@ bool Situation::isCheckPoint(Colors ncolor, int x0, int y0){
     return false;
 }
 
-bool Situation::isCheck(Colors color)
+bool Board::isCheck(Colors color)
 {
     Colors ncolor;
     if (color == white) ncolor = black; else ncolor = white;
@@ -121,7 +121,7 @@ bool Situation::isCheck(Colors color)
     return isCheckPoint(ncolor, x0, y0);
 }
 
-bool Situation::isBlock(Colors color){
+bool Board::isBlock(Colors color){
     for (int x1 = 0; x1 < 8; x1++){
         for (int y1 = 0; y1 < 8; y1++){
             if (boardColors[x1][y1] == color){
@@ -138,7 +138,7 @@ bool Situation::isBlock(Colors color){
     return true;
 }
 
-void Situation::copy(Situation *a)
+void Board::copy(Board *a)
 {
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 8; j++){
@@ -154,17 +154,17 @@ void Situation::copy(Situation *a)
     movePawn = a->movePawn;
 }
 
-bool Situation::isMate(Colors color)
+bool Board::isMate(Colors color)
 {
     return isCheck(color) && isBlock(color);
 }
 
-bool Situation::isStaleMate(Colors color)
+bool Board::isStaleMate(Colors color)
 {
     return !isCheck(color) && isBlock(color);
 }
 
-void Situation::move(Move m)
+void Board::move(Move m)
 {
     if (m.x1 == 4 && m.y1 == 0) isKingMove1 = true;
     else if (m.x1 == 4 && m.y1 == 7) isKingMove2 = true;
@@ -195,7 +195,7 @@ void Situation::move(Move m)
     }
 }
 
-pair<Move,int> Situation::solve(int hight, int level, int breakPoint, Move maybeGoodMove)
+pair<Move,int> Board::solve(int hight, int level, int breakPoint, Move maybeGoodMove)
 {
     if (hight == level) return {{0,0,0,0}, getValue()};
     bool b = false;
@@ -207,11 +207,11 @@ pair<Move,int> Situation::solve(int hight, int level, int breakPoint, Move maybe
     {
         if (canMove(maybeGoodMove)){
             b = true;
-            Situation *nsituation = new Situation();
-            nsituation->copy(this);
-            nsituation->move(maybeGoodMove);
-            pair<Move,int> t = nsituation->solve(hight + 1, level, value, secondBestMove);
-            delete nsituation;
+            Board *nBoard = new Board();
+            nBoard->copy(this);
+            nBoard->move(maybeGoodMove);
+            pair<Move,int> t = nBoard->solve(hight + 1, level, value, secondBestMove);
+            delete nBoard;
             if ((hight % 2 == 0) == (t.second > value)) {
                 secondBestMove = t.first;
                 value = t.second;
@@ -231,11 +231,11 @@ pair<Move,int> Situation::solve(int hight, int level, int breakPoint, Move maybe
                     for (int y2 = 0; y2 < 8; y2++){
                         if (canMove({x1, y1, x2, y2})){
                             b = true;
-                            Situation *nsituation = new Situation();
-                            nsituation->copy(this);
-                            nsituation->move({x1,y1,x2,y2});
-                            pair<Move,int> t = nsituation->solve(hight + 1, level, value, secondBestMove);
-                            delete nsituation;
+                            Board *nBoard = new Board();
+                            nBoard->copy(this);
+                            nBoard->move({x1,y1,x2,y2});
+                            pair<Move,int> t = nBoard->solve(hight + 1, level, value, secondBestMove);
+                            delete nBoard;
                             if ((hight % 2 == 0) == (t.second > value)) {
                                 secondBestMove = t.first;
                                 value = t.second;
@@ -266,7 +266,7 @@ pair<Move,int> Situation::solve(int hight, int level, int breakPoint, Move maybe
     return {bestMove, value};
 }
 
-int Situation::getValue()
+int Board::getValue()
 {
     double res = 0;
     for (int i = 0; i < 8; i++){
