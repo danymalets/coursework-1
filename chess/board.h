@@ -108,7 +108,7 @@ class Board
 {
 public:
     Board();
-    pair<Move,int> solve(int hight, int level, int breakPoint, Move maybeGoodMove);
+
     bool canMove(Move m);
     void move(Move m);
 
@@ -117,14 +117,17 @@ public:
 
     void copy(Board *a);
 
-    bool isStaleMate(Colors color);
+    bool isStalemate(Colors color);
     bool isCheck(Colors color);
     bool isMate(Colors color);
 
+    Move solve(int level);
+
     Figures pawnEnd = queen;
 private:
-    bool isKingMove1 = false, isKingMove2 = false, isRookMove1 = false,
-    isRookMove2= false, isRookMove3 = false, isRookMove4 = false;
+    bool blackKingWasMoving = false, whiteKingWasMoving = false, leftBlackRookWasMoving = false,
+        rightBlackRookWasMoving = false, leftWhiteRookWasMoving = false,
+        rightWhiteRookWasMoving = false;
     int movePawn = -1;
 
     bool isBarrier(int x, int y, int nx, int ny);
@@ -132,6 +135,8 @@ private:
 
     bool isBlock(Colors color);
     bool isCheckPoint(Colors ncolor, int x0, int y0);
+
+    pair<Move,int> solveRec(int hight, int level, int breakPoint, Move maybeGoodMove);
 
     int getValue();
 };

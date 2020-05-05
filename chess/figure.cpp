@@ -1,14 +1,15 @@
 #include "figure.h"
 #include <QtGui>
 
-Figure::Figure(Board *board, vector<Move> *moves,
-    int x, int y, bool allowMovement, Colors userColor, QObject *parent): QObject(parent), QGraphicsItem()
+Figure::Figure(Board *board, int x, int y, bool allowMovement, Colors userColor, QObject *parent):
+    QObject(parent), QGraphicsItem()
 {
     this->board = board;
-    this->moves = moves;
     this->userColor = userColor;
     this->x = x;
     this->y = y;
+    figure = board->boardFigures[x][y];
+    color = board->boardColors[x][y];
     if (userColor == white) setPos(-350 + x * 100, -350 + y * 100);
     else setPos(350 - x * 100, -350 + y * 100);
     if (allowMovement && board->boardColors[x][y] == white) setFlag(ItemIsMovable);
@@ -22,13 +23,13 @@ QRectF Figure::boundingRect() const
 void Figure::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QBrush brush;
-    if ((board->boardColors[x][y] == black) == userColor){
+    if ((color == black) == userColor){
         painter->setPen(QPen(Qt::black, 4));
     }
     else{
         painter->setPen(QPen(Qt::white, 4));
     }
-    switch (board->boardFigures[x][y]){
+    switch (figure){
     case king:
         painter->drawLine(-10, -40,  10, -40);
         painter->drawLine( 10, -40,  10, -10);
@@ -93,12 +94,12 @@ void Figure::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     nx = (point.x() + 400) / 100;
     if (userColor == black) nx = 7 - nx;
     ny = (point.y() + 400) / 100;
-    qDebug() << x << ' ' << y << ' ' << nx << ' ' << ny;
     if (board->canMove({x, y, nx, ny})){
-        board->move({x,y,nx,ny});
-        if (userColor == white) moves->push_back({x,y,nx,ny});
-        else moves->push_back({x,7-y,nx,7-ny});
-        emit sl();
+        board->move({x, y, nx, ny});
+        wasMove = true;
+        if (userColor == white) move = {x, y, nx, ny};
+        else move = {x, 7 - y, nx, 7 - ny};
+        emit moveSignal();
     }
     else{
         if (userColor == white) setPos(-350 + x * 100, -350 + y * 100);

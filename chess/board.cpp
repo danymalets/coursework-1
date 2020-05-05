@@ -1,11 +1,5 @@
 #include "board.h"
 
-struct Vertex{
-    Board Board;
-    int hight, parent, value, child;
-    Move m;
-};
-
 Board::Board()
 {
     for (int i = 0; i < 8; i++){
@@ -13,38 +7,44 @@ Board::Board()
             boardFigures[i][j] = FIGURES[i][j];
         }
         for (int j = 0; j < 4; j++)
-            if (boardFigures[i][j] == noFigure) boardColors[i][j] = noColor; else boardColors[i][j] = black;
+            if (boardFigures[i][j] == noFigure) boardColors[i][j] = noColor;
+            else boardColors[i][j] = black;
 
         for (int j = 4; j < 8; j++)
-            if (boardFigures[i][j] == noFigure) boardColors[i][j] = noColor; else boardColors[i][j] = white;
+            if (boardFigures[i][j] == noFigure) boardColors[i][j] = noColor;
+            else boardColors[i][j] = white;
     }
 }
 
 bool Board::isValidMove(Move m)
 {
     if (m.x2 < 0 || m.x2 >= 8 || m.y2 < 0 || m.y2 >= 8 || (m.x2 == m.x1 && m.y2 == m.y1)
-            || boardColors[m.x1][m.y1] == boardColors[m.x2][m.y2] || boardFigures[m.x1][m.y1] == noFigure) return false;
+            || boardColors[m.x1][m.y1] == boardColors[m.x2][m.y2] ||
+            boardFigures[m.x1][m.y1] == noFigure) return false;
     switch (boardFigures[m.x1][m.y1]){
     case king:
         return max(abs(m.x2 - m.x1), abs(m.y2 - m.y1)) == 1 ||
-
-                (boardColors[m.x1][m.y1] == black && !isKingMove1 && !isRookMove1 && m.x2 == 2 && m.y2 == 0 &&
-                boardFigures[1][0] == noFigure && boardFigures[2][0] == noFigure && boardFigures[3][0] == noFigure &&
-                !isCheckPoint(white, 3, 0) && !isCheckPoint(white, 4, 0)) ||
-
-                (boardColors[m.x1][m.y1] == black && !isKingMove1 && !isRookMove2 && m.x2 == 6 && m.y2 == 0 &&
+                (boardColors[m.x1][m.y1] == black && !blackKingWasMoving &&
+                !leftBlackRookWasMoving && m.x2 == 2 && m.y2 == 0 &&
+                boardFigures[1][0] == noFigure && boardFigures[2][0] == noFigure &&
+                boardFigures[3][0] == noFigure && !isCheckPoint(white, 3, 0) &&
+                !isCheckPoint(white, 4, 0)) ||
+                (boardColors[m.x1][m.y1] == black && !blackKingWasMoving &&
+                !rightBlackRookWasMoving && m.x2 == 6 && m.y2 == 0 &&
                 boardFigures[5][0] == noFigure && boardFigures[6][0] == noFigure &&
                 !isCheckPoint(white, 4, 0) && !isCheckPoint(white, 5, 0)) ||
-
-                (boardColors[m.x1][m.y1] == white && !isKingMove2 && !isRookMove3 && m.x2 == 2 && m.y2 == 7 &&
-                boardFigures[1][7] == noFigure && boardFigures[2][7] == noFigure && boardFigures[3][7] == noFigure &&
-                !isCheckPoint(black, 3, 7) && !isCheckPoint(black, 4, 7)) ||
-
-                (boardColors[m.x1][m.y1] == white && !isKingMove2 && !isRookMove4 && m.x2 == 6 && m.y2 == 7 &&
+                (boardColors[m.x1][m.y1] == white && !whiteKingWasMoving &&
+                !rightWhiteRookWasMoving && m.x2 == 2 && m.y2 == 7 &&
+                boardFigures[1][7] == noFigure && boardFigures[2][7] == noFigure &&
+                boardFigures[3][7] == noFigure && !isCheckPoint(black, 3, 7) &&
+                !isCheckPoint(black, 4, 7)) ||
+                (boardColors[m.x1][m.y1] == white && !whiteKingWasMoving &&
+                !leftWhiteRookWasMoving && m.x2 == 6 && m.y2 == 7 &&
                 boardFigures[5][7] == noFigure && boardFigures[6][7] == noFigure &&
                 !isCheckPoint(black, 4 , 7) && !isCheckPoint(black, 5, 7));
     case queen:
-        return (m.x1 == m.x2 || m.y1 == m.y2 || abs(m.x2 - m.x1) == abs(m.y2 - m.y1)) && !isBarrier(m.x1, m.y1, m.x2, m.y2);
+        return (m.x1 == m.x2 || m.y1 == m.y2 || abs(m.x2 - m.x1) == abs(m.y2 - m.y1)) &&
+                !isBarrier(m.x1, m.y1, m.x2, m.y2);
     case rook:
         return (m.x1 == m.x2 || m.y1 == m.y2) && !isBarrier(m.x1, m.y1, m.x2, m.y2);
     case knight:
@@ -54,14 +54,14 @@ bool Board::isValidMove(Move m)
         return abs(m.x2 - m.x1) == abs(m.y2 - m.y1) && !isBarrier(m.x1, m.y1, m.x2, m.y2);
     case pawn:
         if (boardColors[m.x1][m.y1] == white)
-            return (m.x2 == m.x1 &&
-                (m.y1 - m.y2 == 1 || (m.y1 - m.y2 == 2 && boardFigures[m.x2][m.y2 + 1] == noFigure && m.y1 == 6))
+            return (m.x2 == m.x1 && (m.y1 - m.y2 == 1 || (m.y1 - m.y2 == 2 &&
+                boardFigures[m.x2][m.y2 + 1] == noFigure && m.y1 == 6))
                 && boardFigures[m.x2][m.y2] == noFigure) ||
                 (abs(m.x2 - m.x1) == 1 && m.y1 - m.y2 == 1 && boardColors[m.x2][m.y2] == black) ||
                 (movePawn == m.x2 && abs(m.x1 - m.x2) == 1 && m.y1 == 3 && m.y2 == 2);
         else
-            return (m.x2 == m.x1 &&
-                (m.y2 - m.y1 == 1 || (m.y2 - m.y1 == 2 && boardFigures[m.x2][m.y2 - 1] == noFigure && m.y1 == 1))
+            return (m.x2 == m.x1 && (m.y2 - m.y1 == 1 || (m.y2 - m.y1 == 2 &&
+                boardFigures[m.x2][m.y2 - 1] == noFigure && m.y1 == 1))
                 && boardFigures[m.x2][m.y2] == noFigure) ||
                 (abs(m.x2 - m.x1) == 1 && m.y2 - m.y1 == 1 && boardColors[m.x2][m.y2] == white)||
                 (movePawn == m.x2 && abs(m.x1 - m.x2) == 1 && m.y1 == 4 && m.y2 == 5);
@@ -145,12 +145,12 @@ void Board::copy(Board *a)
             boardFigures[i][j] = a->boardFigures[i][j];
             boardColors[i][j] = a->boardColors[i][j];
         }
-    isKingMove1 = a->isKingMove1;
-    isKingMove2 = a->isKingMove2;
-    isRookMove1 = a->isRookMove1;
-    isRookMove2 = a->isRookMove2;
-    isRookMove3 = a->isRookMove3;
-    isRookMove4 = a->isRookMove4;
+    blackKingWasMoving = a->blackKingWasMoving;
+    whiteKingWasMoving = a->whiteKingWasMoving;
+    leftBlackRookWasMoving = a->leftBlackRookWasMoving;
+    rightBlackRookWasMoving = a->rightBlackRookWasMoving;
+    rightWhiteRookWasMoving = a->rightWhiteRookWasMoving;
+    leftWhiteRookWasMoving = a->leftWhiteRookWasMoving;
     movePawn = a->movePawn;
 }
 
@@ -159,19 +159,19 @@ bool Board::isMate(Colors color)
     return isCheck(color) && isBlock(color);
 }
 
-bool Board::isStaleMate(Colors color)
+bool Board::isStalemate(Colors color)
 {
     return !isCheck(color) && isBlock(color);
 }
 
 void Board::move(Move m)
 {
-    if (m.x1 == 4 && m.y1 == 0) isKingMove1 = true;
-    else if (m.x1 == 4 && m.y1 == 7) isKingMove2 = true;
-    else if ((m.x1 == 0 && m.y1 == 0) || (m.x2 == 0 && m.y2 == 0)) isRookMove1 = true;
-    else if ((m.x1 == 7 && m.y1 == 0) || (m.x2 == 7 && m.y2 == 0)) isRookMove2 = true;
-    else if ((m.x1 == 0 && m.y1 == 7) || (m.x2 == 0 && m.y2 == 7)) isRookMove3 = true;
-    else if ((m.x1 == 7 && m.y1 == 7) || (m.x2 == 7 && m.y2 == 7)) isRookMove4 = true;
+    if (m.x1 == 4 && m.y1 == 0) blackKingWasMoving = true;
+    else if (m.x1 == 4 && m.y1 == 7) whiteKingWasMoving = true;
+    else if ((m.x1 == 0 && m.y1 == 0) || (m.x2 == 0 && m.y2 == 0)) leftBlackRookWasMoving = true;
+    else if ((m.x1 == 7 && m.y1 == 0) || (m.x2 == 7 && m.y2 == 0)) rightBlackRookWasMoving = true;
+    else if ((m.x1 == 0 && m.y1 == 7) || (m.x2 == 0 && m.y2 == 7)) rightWhiteRookWasMoving = true;
+    else if ((m.x1 == 7 && m.y1 == 7) || (m.x2 == 7 && m.y2 == 7)) leftWhiteRookWasMoving = true;
 
     movePawn = -1;
     if (boardFigures[m.x1][m.y1] == pawn && boardFigures[m.x2][m.y2] == noFigure &&
@@ -195,13 +195,18 @@ void Board::move(Move m)
     }
 }
 
-pair<Move,int> Board::solve(int hight, int level, int breakPoint, Move maybeGoodMove)
+Move Board::solve(int level)
 {
-    if (hight == level) return {{0,0,0,0}, getValue()};
+    return solveRec(0, level, 2 * INF, {0, 0, 0, 0}).first;
+}
+
+pair<Move, int> Board::solveRec(int hight, int level, int breakPoint, Move maybeGoodMove)
+{
+    if (hight == level) return {{0, 0, 0, 0}, getValue()};
     bool b = false;
     int value;
-    Move bestMove = {0,0,0,0};
-    Move secondBestMove = {0,0,0,0};
+    Move bestMove = {0, 0, 0, 0};
+    Move secondBestMove = {0, 0, 0, 0};
     if (hight % 2 == 0) value = -INF; else value = INF;
     if ((hight % 2 == 0) != (boardColors[maybeGoodMove.x1][maybeGoodMove.y1] == white))
     {
@@ -210,7 +215,7 @@ pair<Move,int> Board::solve(int hight, int level, int breakPoint, Move maybeGood
             Board *nBoard = new Board();
             nBoard->copy(this);
             nBoard->move(maybeGoodMove);
-            pair<Move,int> t = nBoard->solve(hight + 1, level, value, secondBestMove);
+            pair<Move,int> t = nBoard->solveRec(hight + 1, level, value, secondBestMove);
             delete nBoard;
             if ((hight % 2 == 0) == (t.second > value)) {
                 secondBestMove = t.first;
@@ -234,7 +239,8 @@ pair<Move,int> Board::solve(int hight, int level, int breakPoint, Move maybeGood
                             Board *nBoard = new Board();
                             nBoard->copy(this);
                             nBoard->move({x1,y1,x2,y2});
-                            pair<Move,int> t = nBoard->solve(hight + 1, level, value, secondBestMove);
+                            pair<Move,int> t = nBoard->solveRec(hight + 1, level, value,
+                                                                secondBestMove);
                             delete nBoard;
                             if ((hight % 2 == 0) == (t.second > value)) {
                                 secondBestMove = t.first;

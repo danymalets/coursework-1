@@ -9,21 +9,26 @@
 class Figure : public QObject, public QGraphicsItem
 {
     Q_OBJECT
+    Q_INTERFACES(QGraphicsItem)
 public:
-    explicit Figure(Board *board, vector<Move> *moves,
-        int x, int y, bool allowMovement, Colors userColor, QObject *parent = 0);
-signals:
-    void sl();
+    Figure(Board *board, int x, int y, bool allowMovement, Colors userColor,
+                    QObject *parent = 0);
+
+    bool wasMove = false;
+    Move move;
 private:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    vector<Move> *moves;
-    QGraphicsScene *scene;
-    Board *board;
-    Figures *figures;
+
     Colors userColor;
+    Board *board;
     int x, y;
+    Figures figure;
+    Colors color;
+
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+signals:
+    void moveSignal();
 };
 
 #endif // Figure_H
