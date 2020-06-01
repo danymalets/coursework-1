@@ -10,12 +10,14 @@ class Figure : public QObject, public QGraphicsItem
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
+
 public:
     Figure(Board *board, int x, int y, bool allowMovement, Colors userColor,
                     QObject *parent = 0);
 
     bool wasMove = false;
     Move move;
+
 private:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
@@ -27,6 +29,7 @@ private:
 
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
 signals:
     void moveSignal();
 };

@@ -1,5 +1,4 @@
 #include "figure.h"
-#include <QtGui>
 
 Figure::Figure(Board *board, int x, int y, bool allowMovement, Colors userColor, QObject *parent):
     QObject(parent), QGraphicsItem()

@@ -17,6 +17,7 @@ QT_END_NAMESPACE
 class Game : public QMainWindow
 {
     Q_OBJECT
+
 public:
     explicit Game(QWidget *parent = 0);
     ~Game();
@@ -36,6 +37,7 @@ public:
 
     void writeMoves();
     void showBoard(bool allowMovement, Move lastMove = {-1,-1,-1,-1});
+
 private slots:
     void slotFromPoint();
     void blackTurn();

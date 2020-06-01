@@ -253,4 +253,3 @@ Game::~Game()
 {
     delete ui;
 }
-

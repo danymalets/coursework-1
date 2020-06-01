@@ -124,11 +124,15 @@ public:
     Move solve(int level);
 
     Figures pawnEnd = queen;
+
 private:
-    bool blackKingWasMoving = false, whiteKingWasMoving = false, leftBlackRookWasMoving = false,
-        rightBlackRookWasMoving = false, leftWhiteRookWasMoving = false,
-        rightWhiteRookWasMoving = false;
     int movePawn = -1;
+    bool blackKingWasMoving = false,
+         whiteKingWasMoving = false,
+         leftBlackRookWasMoving = false,
+         rightBlackRookWasMoving = false,
+         leftWhiteRookWasMoving = false,
+         rightWhiteRookWasMoving = false;
 
     bool isBarrier(int x, int y, int nx, int ny);
     bool isValidMove(Move m);
@@ -140,6 +144,5 @@ private:
 
     int getValue();
 };
-
 
 #endif // BOARD_H

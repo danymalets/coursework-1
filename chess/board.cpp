@@ -259,14 +259,16 @@ pair<Move, int> Board::solveRec(int hight, int level, int breakPoint, Move maybe
     }
     if (b == false){ // пат или мат
             if (hight % 2 == 0){ // ход черных
-                if (isCheck(black)) // мат
+                if (isCheck(black))
                     value = -INF / 2 + hight; // мат черным
-                else value = 0; // пат черным
+                else
+                    value = 0; // пат черным
             }
             else{ // ход белых
-                if (isCheck(white)) // мат
+                if (isCheck(white))
                     value = INF / 2 - hight; // мат белым
-                else value = 0; // пат белым
+                else
+                    value = 0; // пат белым
             }
     }
     return {bestMove, value};
